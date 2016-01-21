@@ -1,2 +1,2 @@
 # repel-bbox
-NodeJS implementation of R ggplot2 extension ggrepel. https://github.com/slowkow/ggrepel
+NodeJS implementation of repel_boxes algorithm in R ggplot2 extension ggrepel. https://github.com/slowkow/ggrepel
