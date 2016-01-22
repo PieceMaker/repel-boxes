@@ -66,69 +66,6 @@ class RepelBoxes {
         return retval;
     } // end euclid
 
-    // Find the intersections between a line and a rectangle
-    // p1    A 2D GeoJSON point
-    // p2    A 2D GeoJSON point
-    // bbox  A 2D GeoJSON bounding box
-    // Returns a point
-    instersectLineRectangle(p1, p2, bbox)
-    {
-        var slope = (p2.coordinates[1] - p1.coordinates[1]) / (p2.coordinates[0] - p1.coordinates[0]);
-        var intercept = p2.coordinates[1] - p2.coordinates * slope;
-        var x, y;
-        var retval = {
-            "type": "GeometryCollection",
-            "geometries": [
-                {}, //Intersection 1
-                {}, //Intersection 2
-                {}, //Intersection 3
-                {}  //Intersection 4
-            ]
-        };
-
-        x = bbox[0];
-        y = slope * x + intercept;
-        if (bbox[1] <= y && y <= bbox[3]) {
-            //TODO: create utility to create GeoJSON that is called like 'retval.geometries[0] = toGeoJSONPoint(x, y)'
-            retval.geometries[0] = this.toGeoJSONPoint(x, y);
-        }
-
-        x = bbox[2];
-        y = slope * x + intercept;
-        if (bbox[1] <= y && y <= bbox[3]) {
-            retval.geometries[1] = this.toGeoJSONPoint(x, y);
-        }
-
-        y = bbox[1];
-        x = (y - intercept) / slope;
-        if (bbox[0] <= y && y <= bbox[2]) {
-            retval.geometries[2] = this.toGeoJSONPoint(x, y);
-        }
-
-        y = bbox[3];
-        x = (y - intercept) / slope;
-        if (bbox[0] <= y && y <= bbox[2]) {
-            retval.geometries[3] = this.toGeoJSONPoint(x, y);
-        }
-
-        // Finding the nearest intersection on the rectangle so this function will only ever return a single
-        // GeoJSON point
-        var imin;
-        var d = this.euclid(retval.geometries[0], p1);
-        var dmin = d;
-        for(var i = 1; i < 4; i++) {
-            d = this.euclid(retval.geometries(i), p1);
-            if(d < dmin) {
-                dmin = d;
-                imin = i;
-            }
-        }
-
-        // Return nearest intersection point, if it exists
-        // TODO: Return the point as GeoJSON
-        return retval.geometries[i];
-    } // end instersectLineRectangle
-
     // Move a box into the area specified by x limits and y limits
     // box    A 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry
     // bound  A 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry;
@@ -159,18 +96,6 @@ class RepelBoxes {
 
         return box;
     } // end putWithinBounds
-
-    // Get the coordinates of the center of a box
-    // bbox    The bbox key from a 2D GeoJSON feature
-    // Returns a 2D GeoJSON feature with point geometry
-    centroid(bbox)
-    {
-        var x = (bbox[0] + bbox[2]) / 2;
-        var y = (bbox[1] + bbox[3]) / 2;
-        return this.toGeoJSONFeature(
-            this.toGeoJSONPoint(x, y)
-        );
-    } // end centroid
 
     // Test if a box overlaps another box
     // a  The bbox key from a 2D GeoJSON feature
