@@ -79,24 +79,24 @@ class RepelBoxes {
     // box    A 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry
     // bound  A 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry;
     //          representing the target bbox to move the first bbox to
-    _putWithinBounds(box, bound)
+    _putWithinBounds(box, xlim, ylim)
     {
         var d;
-        if(box.bbox[0] < bound.bbox[0]) {
-            d = Math.abs(box.bbox[0] - bound.bbox[0]);
+        if(box.bbox[0] < xlim[0]) {
+            d = Math.abs(box.bbox[0] - xlim[0]);
             box.bbox[0] += d;
             box.bbox[2] += d;
-        } else if(box.bbox[2] > bound.bbox[1]) {
-            d = Math.abs(box.bbox[2] - bound.bbox[1]);
+        } else if(box.bbox[2] > xlim[1]) {
+            d = Math.abs(box.bbox[2] - xlim[1]);
             box.bbox[0] -= d;
             box.bbox[2] -= d;
         }
-        if(box.bbox[1] < bound.bbox[0]) {
-            d = Math.abs(box.bbox[1] - bound.bbox[0]);
+        if(box.bbox[1] < ylim[0]) {
+            d = Math.abs(box.bbox[1] - ylim[0]);
             box.bbox[1] += d;
             box.bbox[3] += d;
-        } else if(box.bbox[3] > bound.bbox[1]) {
-            d = Math.abs(box.bbox[3] - bound.bbox[1]);
+        } else if(box.bbox[3] > ylim[1]) {
+            d = Math.abs(box.bbox[3] - ylim[1]);
             box.bbox[1] -= d;
             box.bbox[3] -= d;
         }
@@ -199,7 +199,7 @@ class RepelBoxes {
     // ylim       A numeric array representing the limits on the y axis like [ymin, ymax]
     // force      Magnitude of the force (defaults to 1e-6)
     // maxiter    Maximum number of iterations to try to resolve _overlaps (defaults to 2000)
-    repelBoxes(centroids, xlim, ylim, force = 0.000001, maxiter = 2000)
+    repelBoxes(centroids, xlim = [-Infinity, Infinity], ylim = [-Infinity, Infinity], force = 0.000001, maxiter = 2000)
     {
         var i, j;
         var n = centroids.features.length;
@@ -211,7 +211,6 @@ class RepelBoxes {
         var originalCentroids = centroids;
         for(i = 0; i < n; i++) {
             centroid = centroids.features[i];
-            console.log(centroid);
             // height over width
             ratios[i] = (centroid.bbox[3] - centroid.bbox[1]) / (centroid.bbox[2] - centroid.bbox[0]);
         }
