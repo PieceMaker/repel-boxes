@@ -11,33 +11,33 @@ class RepelBoxes {
     constructor() {
     } // end constructor
 
-    toGeoJSONFeature(geom)
+    _toGeoJSONFeature(geom)
     {
         return {
             "type": "Feature",
             geometry: geom
         };
-    } // end toGeoJSONFeature
+    } // end _toGeoJSONFeature
 
-    toGeoJSONPoint(x, y)
+    _toGeoJSONPoint(x, y)
     {
         var point = {
             "type": "Point",
             "coordinates": [x, y]
         };
         return point;
-    } // end toGeoJSONPoint
+    } // end _toGeoJSONPoint
 
-    addGeoJSONPoints(p1, p2)
+    _addGeoJSONPoints(p1, p2)
     {
         var x = p1.coordinates[0] + p2.coordinates[0];
         var y = p1.coordinates[1] + p2.coordinates[1];
-        return this.toGeoJSONFeature(
-            this.toGeoJSONPoint(x, y)
+        return this._toGeoJSONFeature(
+            this._toGeoJSONPoint(x, y)
         );
-    } // end addGeoJSONPoints
+    } // end _addGeoJSONPoints
 
-    bboxToPolyCoords(bbox)
+    _bboxToPolyCoords(bbox)
     {
         // bbox is of form [xmin, ymin, xmax, ymax]
         // polygon is of form [
@@ -52,25 +52,25 @@ class RepelBoxes {
             [bbox[2], bbox[3]],
             [bbox[0], bbox[3]]
         ];
-    } // end bboxToPolyCoords
+    } // end _bboxToPolyCoords
 
-    // Euclidean distance between two numeric vectors
+    // _euclidean distance between two numeric vectors
     // p1    A 2D GeoJSON feature with point geometry
     // p2    A 2D GeoJSON feature with point geometry
     // Probably exists in turf.js
     // Returns a numeric
-    euclid(p1, p2)
+    _euclid(p1, p2)
     {
         var retval = Math.pow(p1.geometry.coordinates[0] - p2.geometry.coordinates[0], 2);
         retval += Math.pow(p1.geometry.coordinates[1] - p2.geometry.coordinates[1], 2);
         return retval;
-    } // end euclid
+    } // end _euclid
 
     // Move a box into the area specified by x limits and y limits
     // box    A 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry
     // bound  A 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry;
     //          representing the target bbox to move the first bbox to
-    putWithinBounds(box, bound)
+    _putWithinBounds(box, bound)
     {
         var d;
         if(box.bbox[0] < bound.bbox[0]) {
@@ -92,34 +92,34 @@ class RepelBoxes {
             box.bbox[3] -= d;
         }
 
-        box.geometry.coordinates = this.bboxToPolyCoords(box.bbox);
+        box.geometry.coordinates = this._bboxToPolyCoords(box.bbox);
 
         return box;
-    } // end putWithinBounds
+    } // end _putWithinBounds
 
-    // Test if a box overlaps another box
+    // Test if a box _overlaps another box
     // a  The bbox key from a 2D GeoJSON feature
     // b  The bbox key from a 2D GeoJSON feature
     // Returns a boolean
-    overlaps(a, b)
+    _overlaps(a, b)
     {
         return (b[0] <= a[2] &&
                 b[1] <= a[3] &&
                 b[2] >= a[0] &&
                 b[3] >= a[1]);
-    } // end overlaps
+    } // end _overlaps
 
     // Test if a point is within the boundaries of a box
     // p    The coordinates key from a 2D GeoJSON feature
     // box  The bbox key from a 2D GeoJSON feature
     // Returns a boolean
-    pointWithinBox(p, box)
+    _pointWithinBox(p, box)
     {
         return (p[0] >= box[0] &&
                 p[0] <= box[2] &&
                 p[1] >= box[1] &&
                 p[1] <= box[3]);
-    } // end pointWithinBox
+    } // end _pointWithinBox
 
     // Compute the repulsion force upon point a from point b.
     //
@@ -130,29 +130,29 @@ class RepelBoxes {
     // b      A 2D GeoJSON feature with point geometry
     // force  Magnitude of the force (defaults to 1e-6)
     // Returns a 2D GeoJSON feature with point geometry
-    repelForce(a, b, force = 0.000001)
+    _repelForce(a, b, force = 0.000001)
     {
         // Note that this is using a random value. Does this mean the label positions will converge
         // to different locations each time this is run?
         a.geometry.coordinates[0] += normal(1, {'mu': 0, 'sigma': force});
         a.geometry.coordinates[1] += normal(1, {'mu': 0, 'sigma': force});
         // Constrain the minimum distance to be at least 0.01
-        var d = Math.max(this.euclid(a, b), 0.01);
+        var d = Math.max(this._euclid(a, b), 0.01);
         // Compute a unit vector in the direction of the force
-        var v = this.toGeoJSONFeature(
-            this.toGeoJSONPoint(
+        var v = this._toGeoJSONFeature(
+            this._toGeoJSONPoint(
                 (a.geometry.coordinates[0] - b.geometry.coordinates[0]) / d,
                 (a.geometry.coordinates[1] - b.geometry.coordinates[1]) / d
             )
         );
         // Divide the force by the squared distance
-        return this.toGeoJSONFeature(
-            this.toGeoJSONPoint(
+        return this._toGeoJSONFeature(
+            this._toGeoJSONPoint(
                 v.geometry.coordinates[0] * force / Math.pow(d, 2),
                 v.geometry.coordinates[1] * force / Math.pow(d, 2)
             )
         );
-    } // end repelForce
+    } // end _repelForce
 
     // Compute the spring force upon point a from point b
     //
@@ -163,24 +163,24 @@ class RepelBoxes {
     // b      A 2D GeoJSON feature with point geometry
     // force  Magnitude of the force (defaults to 1e-6)
     // Returns a 2D GeoJSON feature with point geometry
-    springForce(a, b, force = 0.000001)
+    _springForce(a, b, force = 0.000001)
     {
-        var d = this.euclid(a, b);
+        var d = this._euclid(a, b);
         d = ((d < 0.01) ? 0 : d);
         // Compute a unit vector in the direction of the force
-        var v = this.toGeoJSONFeature(
-            this.toGeoJSONPoint(
+        var v = this._toGeoJSONFeature(
+            this._toGeoJSONPoint(
                 (a.geometry.coordinates[0] - b.geometry.coordinates[0]) / d,
                 (a.geometry.coordinates[1] - b.geometry.coordinates[1]) / d
             )
         );
-        return this.toGeoJSONFeature(
-            this.toGeoJSONPoint(
+        return this._toGeoJSONFeature(
+            this._toGeoJSONPoint(
                 v.geometry.coordinates[0] * force * d,
                 v.geometry.coordinates[1] * force * d
             )
         );
-    } // end springForce
+    } // end _springForce
 
     // Adjust the layout of a list of potentially overlapping boxes
     //
@@ -189,13 +189,13 @@ class RepelBoxes {
     // xlim       A numeric array representing the limits on the x axis like [xmin, xmax]
     // ylim       A numeric array representing the limits on the y axis like [ymin, ymax]
     // force      Magnitude of the force (defaults to 1e-6)
-    // maxiter    Maximum number of iterations to try to resolve overlaps (defaults to 2000)
+    // maxiter    Maximum number of iterations to try to resolve _overlaps (defaults to 2000)
     repelBoxes(centroids, xlim, ylim, force = 0.000001, maxiter = 2000)
     {
         var i, j;
         var n = centroids.features.length();
         var iter = 0;
-        var anyOverlaps = true;
+        var any_overlaps = true;
 
         var ratios = [];
         var centroid;
@@ -212,17 +212,17 @@ class RepelBoxes {
         var cj;
         var fromBox, toBox;
 
-        while(anyOverlaps && iter < maxiter && totalForce > 0) {
+        while(any_overlaps && iter < maxiter && totalForce > 0) {
             if(iter == 0) {
                 // Initialize
                 totalForce = 0;
             }
             iter += 1;
-            anyOverlaps = false;
+            any_overlaps = false;
 
             for(i = 0; i < n; i++) {
-                f = this.toGeoJSONFeature(
-                    this.toGeoJSONPoint(0, 0)
+                f = this._toGeoJSONFeature(
+                    this._toGeoJSONPoint(0, 0)
                 );
                 fromBox = centroids.features[i];
                 ci = centroids.features[i];
@@ -235,38 +235,38 @@ class RepelBoxes {
 
                     if(i == j) {
                         // Repel the box from its own centroid.
-                        if(this.pointWithinBox(originalCentroids.features[i].coordinates, fromBox.bbox)) {
-                            anyOverlaps = true;
-                            f = this.addGeoJSONPoints(
+                        if(this._pointWithinBox(originalCentroids.features[i].coordinates, fromBox.bbox)) {
+                            any_overlaps = true;
+                            f = this._addGeoJSONPoints(
                                 f,
-                                this.repelForce(ci, originalCentroids.features[i], force)
+                                this._repelForce(ci, originalCentroids.features[i], force)
                             );
                         }
                     } else {
                         // Repel the box from overlapping boxes.
-                        if(this.overlaps(fromBox, toBox)) {
-                            anyOverlaps = true;
-                            f = this.addGeoJSONPoints(
+                        if(this._overlaps(fromBox, toBox)) {
+                            any_overlaps = true;
+                            f = this._addGeoJSONPoints(
                                 f,
-                                this.repelForce(ci, cj, force)
+                                this._repelForce(ci, cj, force)
                             );
                         }
                         // Repel the box from overlapping centroids.
-                        if(this.pointWithinBox(originalCentroids.features[j].coordinates, fromBox.bbox)) {
-                            anyOverlaps = true;
-                            f = this.addGeoJSONPoints(
+                        if(this._pointWithinBox(originalCentroids.features[j].coordinates, fromBox.bbox)) {
+                            any_overlaps = true;
+                            f = this._addGeoJSONPoints(
                                 f,
-                                this.repelForce(ci, originalCentroids.features[j], force)
+                                this._repelForce(ci, originalCentroids.features[j], force)
                             );
                         }
                     }
                 }
 
                 // Pull toward the label's point
-                if(!anyOverlaps) {
-                    f = this.addGeoJSONPoints(
+                if(!any_overlaps) {
+                    f = this._addGeoJSONPoints(
                         f,
-                        this.springForce(originalCentroids.features[i], ci, force)
+                        this._springForce(originalCentroids.features[i], ci, force)
                     );
                 }
 
@@ -284,13 +284,13 @@ class RepelBoxes {
                     fromBox.bbox[2] + f.geometry.coordinates[0],
                     fromBox.bbox[3] + f.geometry.coordinates[1]
                 ];
-                centroids.features[i] = this.putWithinBounds(centroids.features[i], xlim, ylim);
+                centroids.features[i] = this._putWithinBounds(centroids.features[i], xlim, ylim);
             }
         }
 
         for(i = 0; i < n; i++) {
             centroid = centroids.features[i];
-            centroids.features[i] = this.toGeoJSONPoint(
+            centroids.features[i] = this._toGeoJSONPoint(
                 (centroid.bbox[0] + centroid.bbox[2]) / 2,
                 (centroid.bbox[1] + centroid.bbox[3]) / 2
             );
