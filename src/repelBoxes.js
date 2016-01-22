@@ -267,7 +267,7 @@ class RepelBoxes {
     // maxiter    Maximum number of iterations to try to resolve overlaps (defaults to 2000)
     repelBoxes(centroids, xlim, ylim, force = 0.000001, maxiter = 2000)
     {
-        var i,j;
+        var i, j;
         var n = centroids.features.length();
         var iter = 0;
         var anyOverlaps = true;
