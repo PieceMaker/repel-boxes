@@ -11,6 +11,8 @@ class RepelBoxes {
     constructor() {
     } // end constructor
 
+    // geom  The geometry key for a 2D GeoJSON feature with point geometry
+    // Returns a 2D GeoJSON feature with point geometry
     _toGeoJSONFeature(geom)
     {
         return {
@@ -19,6 +21,9 @@ class RepelBoxes {
         };
     } // end _toGeoJSONFeature
 
+    // x A numeric x coordinate
+    // y A numeric y coordinate
+    // Returns the geometry key for a 2D GeoJSON feature with point geometry
     _toGeoJSONPoint(x, y)
     {
         var point = {
@@ -28,10 +33,14 @@ class RepelBoxes {
         return point;
     } // end _toGeoJSONPoint
 
+
+    // p1  A 2D GeoJSON feature with point geometry
+    // p2  A 2D GeoJSON feature with point geometry
+    // Returns a 2D GeoJSON feature with point geometry
     _addGeoJSONPoints(p1, p2)
     {
-        var x = p1.coordinates[0] + p2.coordinates[0];
-        var y = p1.coordinates[1] + p2.coordinates[1];
+        var x = p1.geometry.coordinates[0] + p2.geometry.coordinates[0];
+        var y = p1.geometry.coordinates[1] + p2.geometry.coordinates[1];
         return this._toGeoJSONFeature(
             this._toGeoJSONPoint(x, y)
         );
@@ -193,7 +202,7 @@ class RepelBoxes {
     repelBoxes(centroids, xlim, ylim, force = 0.000001, maxiter = 2000)
     {
         var i, j;
-        var n = centroids.features.length();
+        var n = centroids.features.length;
         var iter = 0;
         var any_overlaps = true;
 
@@ -202,8 +211,9 @@ class RepelBoxes {
         var originalCentroids = centroids;
         for(i = 0; i < n; i++) {
             centroid = centroids.features[i];
+            console.log(centroid);
             // height over width
-            ratios[i] = (centroids.bbox[3] - centroids.bbox[1]) / (centroids.bbox[2] - centroids.bbox[0]);
+            ratios[i] = (centroid.bbox[3] - centroid.bbox[1]) / (centroid.bbox[2] - centroid.bbox[0]);
         }
 
         var totalForce = 1;
@@ -235,7 +245,7 @@ class RepelBoxes {
 
                     if(i == j) {
                         // Repel the box from its own centroid.
-                        if(this._pointWithinBox(originalCentroids.features[i].coordinates, fromBox.bbox)) {
+                        if(this._pointWithinBox(originalCentroids.features[i].geometry.coordinates, fromBox.bbox)) {
                             any_overlaps = true;
                             f = this._addGeoJSONPoints(
                                 f,
@@ -252,7 +262,7 @@ class RepelBoxes {
                             );
                         }
                         // Repel the box from overlapping centroids.
-                        if(this._pointWithinBox(originalCentroids.features[j].coordinates, fromBox.bbox)) {
+                        if(this._pointWithinBox(originalCentroids.features[j].geometry.coordinates, fromBox.bbox)) {
                             any_overlaps = true;
                             f = this._addGeoJSONPoints(
                                 f,
