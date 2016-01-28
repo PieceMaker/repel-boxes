@@ -12,7 +12,7 @@ class RepelBoxes {
     } // end constructor
 
     // geom  The geometry key for a 2D GeoJSON feature with point geometry
-    // Returns a 2D GeoJSON feature with point geometry
+    // Returns a 2D GeoJSON feature
     _toGeoJSONFeature(geom)
     {
         return {
