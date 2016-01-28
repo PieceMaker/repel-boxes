@@ -75,6 +75,16 @@ class RepelBoxes {
         return retval;
     } // end _euclid
 
+    // Get the coordinates of the center of a box
+    // bbox  The bbox key from a 2D GeoJSON feature
+    // Returns a 2D GeoJSON point geometry
+    _centroid(bbox)
+    {
+        var x = (bbox[0] + bbox[2]) / 2;
+        var y = (bbox[1] + bbox[3]) / 2;
+        return this._toGeoJSONPoint(x, y);
+    } // end _centroid
+
     // Move a box into the area specified by x limits and y limits
     // box    A 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry
     // bound  A 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry;
@@ -101,7 +111,7 @@ class RepelBoxes {
             box.bbox[3] -= d;
         }
 
-        box.geometry.coordinates = this._bboxToPolyCoords(box.bbox);
+        box.geometry = this._centroid(box.bbox);
 
         return box;
     } // end _putWithinBounds
@@ -208,7 +218,7 @@ class RepelBoxes {
 
         var ratios = [];
         var centroid;
-        var originalCentroids = centroids;
+        var originalCentroids = _.cloneDeep(centroids);
         for(i = 0; i < n; i++) {
             centroid = centroids.features[i];
             // height over width
@@ -283,7 +293,8 @@ class RepelBoxes {
                 f.geometry.coordinates[0] = f.geometry.coordinates[0] * ratios[i];
 
                 // Dampen the forces
-                f.geometry.coordinates = f.geometry.coordinates * (1 - 0.001);
+                f.geometry.coordinates[0] = f.geometry.coordinates[0] * (1 - 0.001);
+                f.geometry.coordinates[1] = f.geometry.coordinates[1] * (1 - 0.001);
 
                 totalForce += Math.abs(f.geometry.coordinates[0]) + Math.abs(f.geometry.coordinates[1]);
 
