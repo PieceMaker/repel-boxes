@@ -151,17 +151,24 @@ class RepelBoxes {
     // Returns a 2D GeoJSON feature with point geometry
     _repelForce(a, b, force = 0.000001)
     {
+        var from = _.cloneDeep(a);
+        var to = _.cloneDeep(b);
+        from.x = from.geometry.coordinates[0];
+        from.y = from.geometry.coordinates[1];
+        to.x = to.geometry.coordinates[0];
+        to.y = to.geometry.coordinates[1];
+
         // Note that this is using a random value. Does this mean the label positions will converge
         // to different locations each time this is run?
-        a.geometry.coordinates[0] += normal(1, {'mu': 0, 'sigma': force});
-        a.geometry.coordinates[1] += normal(1, {'mu': 0, 'sigma': force});
+        from.geometry.coordinates[0] += normal(1, {'mu': 0, 'sigma': force});
+        from.geometry.coordinates[1] += normal(1, {'mu': 0, 'sigma': force});
         // Constrain the minimum distance to be at least 0.01
-        var d = Math.max(this._euclid(a, b), 0.01);
+        var d = Math.max(this._euclid(from, to), 0.01);
         // Compute a unit vector in the direction of the force
         var v = this._toGeoJSONFeature(
             this._toGeoJSONPoint(
-                (a.geometry.coordinates[0] - b.geometry.coordinates[0]) / d,
-                (a.geometry.coordinates[1] - b.geometry.coordinates[1]) / d
+                (from.x - to.x) / d,
+                (from.y - to.y) / d
             )
         );
         // Divide the force by the squared distance
