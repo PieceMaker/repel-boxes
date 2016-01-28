@@ -174,19 +174,25 @@ class RepelBoxes {
     // The force increases with the distance between the points, similar
     // to Hooke's law for springs
     //
-    // a      A 2D GeoJSON feature with point geometry
-    // b      A 2D GeoJSON feature with point geometry
+    // from   A 2D GeoJSON feature with point geometry
+    // to     A 2D GeoJSON feature with point geometry
     // force  Magnitude of the force (defaults to 1e-6)
     // Returns a 2D GeoJSON feature with point geometry
-    _springForce(a, b, force = 0.000001)
+    _springForce(from, to, force = 0.000001)
     {
-        var d = this._euclid(a, b);
+        var xFrom = from.geometry.coordinates[0];
+        var yFrom = from.geometry.coordinates[1];
+        var xTo = to.geometry.coordinates[0];
+        var yTo = to.geometry.coordinates[1];
+
+        var d = this._euclid(from, to);
         d = ((d < 0.01) ? 0 : d);
+        
         // Compute a unit vector in the direction of the force
         var v = this._toGeoJSONFeature(
             this._toGeoJSONPoint(
-                (a.geometry.coordinates[0] - b.geometry.coordinates[0]) / d,
-                (a.geometry.coordinates[1] - b.geometry.coordinates[1]) / d
+                (xFrom - xTo) / d,
+                (yFrom - yTo) / d
             )
         );
         return this._toGeoJSONFeature(
