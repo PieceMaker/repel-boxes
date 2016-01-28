@@ -92,29 +92,28 @@ class RepelBoxes {
     _putWithinBounds(box, xlim, ylim)
     {
         var d;
-        var updatedBox = _.cloneDeep(box);
         if(box.bbox[0] < xlim[0]) {
-            d = Math.abs(updatedBox.bbox[0] - xlim[0]);
-            updatedBox.bbox[0] += d;
-            updatedBox.bbox[2] += d;
+            d = Math.abs(box.bbox[0] - xlim[0]);
+            box.bbox[0] += d;
+            box.bbox[2] += d;
         } else if(box.bbox[2] > xlim[1]) {
-            d = Math.abs(updatedBox.bbox[2] - xlim[1]);
-            updatedBox.bbox[0] -= d;
-            updatedBox.bbox[2] -= d;
+            d = Math.abs(box.bbox[2] - xlim[1]);
+            box.bbox[0] -= d;
+            box.bbox[2] -= d;
         }
         if(box.bbox[1] < ylim[0]) {
-            d = Math.abs(updatedBox.bbox[1] - ylim[0]);
-            updatedBox.bbox[1] += d;
-            updatedBox.bbox[3] += d;
+            d = Math.abs(box.bbox[1] - ylim[0]);
+            box.bbox[1] += d;
+            box.bbox[3] += d;
         } else if(box.bbox[3] > ylim[1]) {
-            d = Math.abs(updatedBox.bbox[3] - ylim[1]);
-            updatedBox.bbox[1] -= d;
-            updatedBox.bbox[3] -= d;
+            d = Math.abs(box.bbox[3] - ylim[1]);
+            box.bbox[1] -= d;
+            box.bbox[3] -= d;
         }
 
-        updatedBox.geometry = this._centroid(updatedBox.bbox);
+        box.geometry = this._centroid(box.bbox);
 
-        return updatedBox;
+        return box;
     } // end _putWithinBounds
 
     // Test if a box _overlaps another box
