@@ -129,8 +129,8 @@ class RepelBoxes {
     // The force decays with the squared distance between the points,
     // similar to the force of repulsion between magnets.
     //
-    // from      A 2D GeoJSON feature with point geometry
-    // to      A 2D GeoJSON feature with point geometry
+    // from   A 2D GeoJSON feature with point geometry
+    // to     A 2D GeoJSON feature with point geometry
     // force  Magnitude of the force (defaults to 1e-6)
     // Returns a 2D GeoJSON feature with point geometry
     _repelForce(from, to, force = 0.000001)
