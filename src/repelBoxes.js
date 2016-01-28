@@ -89,6 +89,7 @@ class RepelBoxes {
     // box    A 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry
     // bound  A 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry;
     //          representing the target bbox to move the first bbox to
+    // Return value is not significant. This modifies the input box argument.
     _putWithinBounds(box, xlim, ylim)
     {
         var d;
@@ -151,24 +152,29 @@ class RepelBoxes {
     // Returns a 2D GeoJSON feature with point geometry
     _repelForce(a, b, force = 0.000001)
     {
-        var from = _.cloneDeep(a);
-        var to = _.cloneDeep(b);
-        from.x = from.geometry.coordinates[0];
-        from.y = from.geometry.coordinates[1];
-        to.x = to.geometry.coordinates[0];
-        to.y = to.geometry.coordinates[1];
 
         // Note that this is using a random value. Does this mean the label positions will converge
         // to different locations each time this is run?
-        from.geometry.coordinates[0] += normal(1, {'mu': 0, 'sigma': force});
-        from.geometry.coordinates[1] += normal(1, {'mu': 0, 'sigma': force});
+        var xFrom = a.geometry.coordinates[0] + normal(1, {'mu': 0, 'sigma': force});
+        var yFrom = a.geometry.coordinates[1] + normal(1, {'mu': 0, 'sigma': force});
+        var xTo = b.geometry.coordinates[0];
+        var yTo = b.geometry.coordinates[1];
+
         // Constrain the minimum distance to be at least 0.01
-        var d = Math.max(this._euclid(from, to), 0.01);
+        var d = Math.max(
+            this._euclid(
+                this._toGeoJSONFeature(
+                    this._toGeoJSONPoint(xFrom, yFrom)
+                ),
+                b
+            ),
+            0.01
+        );
         // Compute a unit vector in the direction of the force
         var v = this._toGeoJSONFeature(
             this._toGeoJSONPoint(
-                (from.x - to.x) / d,
-                (from.y - to.y) / d
+                (xFrom - xTo) / d,
+                (yFrom - yTo) / d
             )
         );
         // Divide the force by the squared distance
@@ -312,7 +318,8 @@ class RepelBoxes {
                     fromBox.bbox[2] + f.geometry.coordinates[0],
                     fromBox.bbox[3] + f.geometry.coordinates[1]
                 ];
-                updatedCentroids.features[i] = this._putWithinBounds(updatedCentroids.features[i], xlim, ylim);
+                // This modifies updatedCentroids.features[i]
+                this._putWithinBounds(updatedCentroids.features[i], xlim, ylim);
             }
         }
 
