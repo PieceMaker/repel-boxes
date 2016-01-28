@@ -226,8 +226,9 @@ class RepelBoxes {
         var ratios = [];
         var centroid;
         var originalCentroids = _.cloneDeep(centroids);
+        var updatedCentroids = _.cloneDeep(centroids);
         for(i = 0; i < n; i++) {
-            centroid = centroids.features[i];
+            centroid = updatedCentroids.features[i];
             // height over width
             ratios[i] = (centroid.bbox[3] - centroid.bbox[1]) / (centroid.bbox[2] - centroid.bbox[0]);
         }
@@ -250,14 +251,14 @@ class RepelBoxes {
                 f = this._toGeoJSONFeature(
                     this._toGeoJSONPoint(0, 0)
                 );
-                fromBox = centroids.features[i];
-                ci = centroids.features[i];
+                fromBox = updatedCentroids.features[i];
+                ci = updatedCentroids.features[i];
 
                 // Do we really want to compare all points to each other twice?
                 // Maybe this could be changed to var j = i+1?
                 for(j = 0; j < n; j++) {
-                    toBox = centroids.features[j];
-                    cj = centroids.features[j];
+                    toBox = updatedCentroids.features[j];
+                    cj = updatedCentroids.features[j];
 
                     if(i == j) {
                         // Repel the box from its own centroid.
@@ -305,25 +306,25 @@ class RepelBoxes {
 
                 totalForce += Math.abs(f.geometry.coordinates[0]) + Math.abs(f.geometry.coordinates[1]);
 
-                centroids.features[i].bbox = [
+                updatedCentroids.features[i].bbox = [
                     fromBox.bbox[0] + f.geometry.coordinates[0],
                     fromBox.bbox[1] + f.geometry.coordinates[1],
                     fromBox.bbox[2] + f.geometry.coordinates[0],
                     fromBox.bbox[3] + f.geometry.coordinates[1]
                 ];
-                centroids.features[i] = this._putWithinBounds(centroids.features[i], xlim, ylim);
+                updatedCentroids.features[i] = this._putWithinBounds(updatedCentroids.features[i], xlim, ylim);
             }
         }
 
         for(i = 0; i < n; i++) {
-            centroid = centroids.features[i];
-            centroids.features[i] = this._toGeoJSONPoint(
+            centroid = updatedCentroids.features[i];
+            updatedCentroids.features[i] = this._toGeoJSONPoint(
                 (centroid.bbox[0] + centroid.bbox[2]) / 2,
                 (centroid.bbox[1] + centroid.bbox[3]) / 2
             );
         }
 
-        return centroids;
+        return updatedCentroids;
     } // end repelBoxes;
 
 } // end RepelBoxes
