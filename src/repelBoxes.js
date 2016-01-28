@@ -320,8 +320,12 @@ class RepelBoxes {
                 ];
                 // This modifies updatedCentroids.features[i]
                 this._putWithinBounds(updatedCentroids.features[i], xlim, ylim);
+                // Update the centroids to be the center of the latest position of their bounding box
+                updatedCentroids.features[i].geometry = this._centroid(updatedCentroids.features[i].bbox);
             }
         }
+
+        //console.log(iter);
 
         for(i = 0; i < n; i++) {
             centroid = updatedCentroids.features[i];
