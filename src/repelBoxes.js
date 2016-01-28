@@ -129,19 +129,19 @@ class RepelBoxes {
     // The force decays with the squared distance between the points,
     // similar to the force of repulsion between magnets.
     //
-    // a      A 2D GeoJSON feature with point geometry
-    // b      A 2D GeoJSON feature with point geometry
+    // from      A 2D GeoJSON feature with point geometry
+    // to      A 2D GeoJSON feature with point geometry
     // force  Magnitude of the force (defaults to 1e-6)
     // Returns a 2D GeoJSON feature with point geometry
-    _repelForce(a, b, force = 0.000001)
+    _repelForce(from, to, force = 0.000001)
     {
 
         // Note that this is using a random value. Does this mean the label positions will converge
         // to different locations each time this is run?
-        var xFrom = a.geometry.coordinates[0] + normal(1, {'mu': 0, 'sigma': force});
-        var yFrom = a.geometry.coordinates[1] + normal(1, {'mu': 0, 'sigma': force});
-        var xTo = b.geometry.coordinates[0];
-        var yTo = b.geometry.coordinates[1];
+        var xFrom = from.geometry.coordinates[0] + normal(1, {'mu': 0, 'sigma': force});
+        var yFrom = from.geometry.coordinates[1] + normal(1, {'mu': 0, 'sigma': force});
+        var xTo = to.geometry.coordinates[0];
+        var yTo = to.geometry.coordinates[1];
 
         // Constrain the minimum distance to be at least 0.01
         var d = Math.max(
@@ -149,7 +149,7 @@ class RepelBoxes {
                 this._toGeoJSONFeature(
                     this._toGeoJSONPoint(xFrom, yFrom)
                 ),
-                b
+                to
             ),
             0.01
         );
