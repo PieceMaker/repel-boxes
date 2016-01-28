@@ -46,23 +46,6 @@ class RepelBoxes {
         );
     } // end _addGeoJSONPoints
 
-    _bboxToPolyCoords(bbox)
-    {
-        // bbox is of form [xmin, ymin, xmax, ymax]
-        // polygon is of form [
-        //     [xmin, ymin],
-        //     [xmax, ymin],
-        //     [xmax, ymax],
-        //     [xmin, ymax]
-        // ]
-        return [
-            [bbox[0], bbox[1]],
-            [bbox[2], bbox[1]],
-            [bbox[2], bbox[3]],
-            [bbox[0], bbox[3]]
-        ];
-    } // end _bboxToPolyCoords
-
     // _euclidean distance between two numeric vectors
     // p1    A 2D GeoJSON feature with point geometry
     // p2    A 2D GeoJSON feature with point geometry
