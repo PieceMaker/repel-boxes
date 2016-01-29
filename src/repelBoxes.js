@@ -11,8 +11,11 @@ class RepelBoxes {
     constructor() {
     } // end constructor
 
-    // geom  The geometry key for a 2D GeoJSON feature with point geometry
-    // Returns a 2D GeoJSON feature
+    /**
+     * @param geom  the geometry key for a 2D GeoJSON feature with point geometry
+     * @returns     a 2D GeoJSON feature {{type: string, geometry: *}}
+     * @private
+     */
     _toGeoJSONFeature(geom)
     {
         return {
@@ -21,9 +24,12 @@ class RepelBoxes {
         };
     } // end _toGeoJSONFeature
 
-    // x A numeric x coordinate
-    // y A numeric y coordinate
-    // Returns the geometry key for a 2D GeoJSON feature with point geometry
+    /**
+     * @param x  a numeric x coordinate
+     * @param y  a numeric y coordinate
+     * @returns  the geometry key for a 2D GeoJSON feature with point geometry {{type: string, coordinates: *[]}}
+     * @private
+     */
     _toGeoJSONPoint(x, y)
     {
         var point = {
@@ -33,10 +39,12 @@ class RepelBoxes {
         return point;
     } // end _toGeoJSONPoint
 
-
-    // p1  A 2D GeoJSON feature with point geometry
-    // p2  A 2D GeoJSON feature with point geometry
-    // Returns a 2D GeoJSON feature with point geometry
+    /**
+     * @param p1  a 2D GeoJSON feature with point geometry
+     * @param p2  a 2D GeoJSON feature with point geometry
+     * @returns   a 2D GeoJSON feature with point geometry {{type, geometry}|a}
+     * @private
+     */
     _addGeoJSONPoints(p1, p2)
     {
         var x = p1.geometry.coordinates[0] + p2.geometry.coordinates[0];
@@ -46,11 +54,13 @@ class RepelBoxes {
         );
     } // end _addGeoJSONPoints
 
-    // _euclidean distance between two numeric vectors
-    // p1    A 2D GeoJSON feature with point geometry
-    // p2    A 2D GeoJSON feature with point geometry
-    // Probably exists in turf.js
-    // Returns a numeric
+    /**
+     * euclidean distance between two numeric vectors (probably exists in turf.js)
+     * @param p1  a 2D GeoJSON feature with point geometry
+     * @param p2  a 2D GeoJSON feature with point geometry
+     * @returns   a numeric {number}
+     * @private
+     */
     _euclid(p1, p2)
     {
         var retval = Math.pow(p1.geometry.coordinates[0] - p2.geometry.coordinates[0], 2);
@@ -58,9 +68,12 @@ class RepelBoxes {
         return retval;
     } // end _euclid
 
-    // Get the coordinates of the center of a box
-    // bbox  The bbox key from a 2D GeoJSON feature
-    // Returns a 2D GeoJSON point geometry
+    /**
+     * get the coordinates of the center of a box
+     * @param bbox  the bbox key from a 2D GeoJSON feature
+     * @returns     a 2D GeoJSON point geometry {{type: string, coordinates: *[]}}
+     * @private
+     */
     _centroid(bbox)
     {
         var x = (bbox[0] + bbox[2]) / 2;
@@ -68,11 +81,16 @@ class RepelBoxes {
         return this._toGeoJSONPoint(x, y);
     } // end _centroid
 
-    // Move a box into the area specified by x limits and y limits
-    // box    A 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry
-    // bound  A 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry;
-    //          representing the target bbox to move the first bbox to
-    // Return value is not significant. This modifies the input box argument.
+    /**
+     * move a box into the area specified by x limits and y limits
+     * @param box   a 2D GeoJSON feature with polygon geometry and corresponding bbox key on geometry
+     * @param xlim  an array of numerics representing the x limits that must be conformed to, of form [xmin, xmax]
+     *                use [-Infinity,Infinity] if no bounds are required
+     * @param ylim  an array of numerics representing the y limits that must be conformed to, of form [ymin, ymax]
+     *                use [-Infinity,Infinity] if no bounds are required
+     * @returns     value is not significant, this modifies the input box argument
+     * @private
+     */
     _putWithinBounds(box, xlim, ylim)
     {
         var d;
@@ -100,10 +118,13 @@ class RepelBoxes {
         return box;
     } // end _putWithinBounds
 
-    // Test if a box _overlaps another box
-    // a  The bbox key from a 2D GeoJSON feature
-    // b  The bbox key from a 2D GeoJSON feature
-    // Returns a boolean
+    /**
+     * test if box a overlaps box b
+     * @param a  the bbox key from a 2D GeoJSON feature
+     * @param b  the bbox key from a 2D GeoJSON feature
+     * @returns  a boolean {boolean}
+     * @private
+     */
     _overlaps(a, b)
     {
         return (b[0] <= a[2] &&
@@ -112,10 +133,13 @@ class RepelBoxes {
                 b[3] >= a[1]);
     } // end _overlaps
 
-    // Test if a point is within the boundaries of a box
-    // p    The coordinates key from a 2D GeoJSON feature
-    // box  The bbox key from a 2D GeoJSON feature
-    // Returns a boolean
+    /**
+     * test if point p is within the boundaries of box
+     * @param p    the coordinates key from a 2D GeoJSON feature
+     * @param box  the bbox key from a 2D GeoJSON feature
+     * @returns    a boolean {boolean}
+     * @private
+     */
     _pointWithinBox(p, box)
     {
         return (p[0] >= box[0] &&
@@ -124,15 +148,17 @@ class RepelBoxes {
                 p[1] <= box[3]);
     } // end _pointWithinBox
 
-    // Compute the repulsion force upon point a from point b.
-    //
-    // The force decays with the squared distance between the points,
-    // similar to the force of repulsion between magnets.
-    //
-    // from   A 2D GeoJSON feature with point geometry
-    // to     A 2D GeoJSON feature with point geometry
-    // force  Magnitude of the force (defaults to 1e-6)
-    // Returns a 2D GeoJSON feature with point geometry
+    /**
+     * compute the repulsion force upon point a from point b
+     *
+     * the force decays with the squared distance between the points,
+     *   similar to the force of repulsion between magnets
+     * @param from   a 2D GeoJSON feature with point geometry
+     * @param to     a 2D GeoJSON feature with point geometry
+     * @param force  magnitude of the force (defaults to 1e-6)
+     * @returns      a 2D GeoJSON feature with point geometry {{type, geometry}|a}
+     * @private
+     */
     _repelForce(from, to, force = 0.000001)
     {
 
@@ -169,15 +195,17 @@ class RepelBoxes {
         );
     } // end _repelForce
 
-    // Compute the spring force upon point a from point b
-    //
-    // The force increases with the distance between the points, similar
-    // to Hooke's law for springs
-    //
-    // from   A 2D GeoJSON feature with point geometry
-    // to     A 2D GeoJSON feature with point geometry
-    // force  Magnitude of the force (defaults to 1e-6)
-    // Returns a 2D GeoJSON feature with point geometry
+    /**
+     * compute the spring force upon point a from point b
+     *
+     * the force increases with the distance between the points,
+     *   similar to Hooke's law for springs
+     * @param from   a 2D GeoJSON feature with point geometry
+     * @param to     a 2D GeoJSON feature with point geometry
+     * @param force  magnitude of the force (defaults to 1e-6)
+     * @returns      a 2D GeoJSON feature with point geometry {{type, geometry}|a}
+     * @private
+     */
     _springForce(from, to, force = 0.000001)
     {
         var xFrom = from.geometry.coordinates[0];
@@ -187,7 +215,7 @@ class RepelBoxes {
 
         var d = this._euclid(from, to);
         d = ((d < 0.01) ? 0 : d);
-        
+
         // Compute a unit vector in the direction of the force
         var v = this._toGeoJSONFeature(
             this._toGeoJSONPoint(
@@ -203,14 +231,17 @@ class RepelBoxes {
         );
     } // end _springForce
 
-    // Adjust the layout of a list of potentially overlapping boxes
-    //
-    // centroids  A GeoJSON FeatureCollection where each feature has a bbox key representing the label bbox
-    //              and each geometry is a feature point of the a label's centroid.
-    // xlim       A numeric array representing the limits on the x axis like [xmin, xmax]
-    // ylim       A numeric array representing the limits on the y axis like [ymin, ymax]
-    // force      Magnitude of the force (defaults to 1e-6)
-    // maxiter    Maximum number of iterations to try to resolve _overlaps (defaults to 2000)
+    /**
+     * adjust the layout of a list of potentially overlapping boxes
+     * @param centroids  a GeoJSON FeatureCollection where each feature has a bbox key representing the label bbox
+     *                     and each geometry is a feature point of the a label's centroid.
+     * @param xlim       a numeric array representing the limits on the x axis like [xmin, xmax]
+     * @param ylim       a numeric array representing the limits on the x axis like [xmin, xmax]
+     * @param force      magnitude of the force (defaults to 1e-6)
+     * @param maxiter    maximum number of iterations to try to resolve _overlaps (defaults to 2000)
+     * @returns          a GoJSON FeatureCollection where each feature is a point representing the
+     *                     updated location of the label centroid
+     */
     repelBoxes(centroids, xlim = [-Infinity, Infinity], ylim = [-Infinity, Infinity], force = 0.000001, maxiter = 2000)
     {
         var i, j;
