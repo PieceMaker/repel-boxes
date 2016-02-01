@@ -349,7 +349,7 @@ class RepelBoxes {
 
         for(i = 0; i < n; i++) {
             centroid = updatedCentroids.features[i];
-            updatedCentroids.features[i] = this._toGeoJSONPoint(
+            updatedCentroids.features[i].geometry = this._toGeoJSONPoint(
                 (centroid.bbox[0] + centroid.bbox[2]) / 2,
                 (centroid.bbox[1] + centroid.bbox[3]) / 2
             );
